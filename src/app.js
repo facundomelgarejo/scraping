@@ -87,8 +87,10 @@ axios.get('https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variabl
 
   // --------------------------------------------------------------- OBTENER VALOR DEL DOLAR MAYORISTA Y MINORISTA DEL BNA -------------------------------------------
   var band = true;
-  var valorDolarMinoristaBNA;
-  var valorDolarMayoristaBNA;
+  var valorDolarMinoristaCompraBNA;
+  var valorDolarMinoristaVentaBNA;
+  var valorDolarMayoristaCompraBNA;
+  var valorDolarMayoristaVentaBNA;
 axios.get('https://www.bna.com.ar/Personas')
 .then(response => {
   
@@ -103,16 +105,32 @@ axios.get('https://www.bna.com.ar/Personas')
 
         let filaCompletaDolarMinorista = $(element).html() //Como es el primer, agarro toda la fila
         const columnasDolarMinorista =  filaCompletaDolarMinorista.split('</td>') //separo por columnas
-        let tercerColumnaDolarMinorista = Object.values(columnasDolarMinorista)[2] 
-        valorDolarMinoristaBNA = tercerColumnaDolarMinorista.split('>')[1]
+
+        let segundaColumnaDolarMinorista = Object.values(columnasDolarMinorista)[1] //posicion 1 = compra
+        valorDolarMinoristaCompraBNA = segundaColumnaDolarMinorista.split('>')[1] //Aca ya obtengo el valor, despues le saco 2 decimales, y le cambio punto por coma
+        valorDolarMinoristaCompraBNA = parseFloat(valorDolarMinoristaCompraBNA).toFixed(2)
+        valorDolarMinoristaCompraBNA = valorDolarMinoristaCompraBNA.replace(".", ",")
+       
+
+        let tercerColumnaDolarMinorista = Object.values(columnasDolarMinorista)[2] //posicion 2 = venta
+        valorDolarMinoristaVentaBNA = tercerColumnaDolarMinorista.split('>')[1] //Aca ya obtengo el valor, despues le saco 2 decimales, y le cambio punto por coma
+        valorDolarMinoristaVentaBNA = parseFloat(valorDolarMinoristaVentaBNA).toFixed(2)
+        valorDolarMinoristaVentaBNA = valorDolarMinoristaVentaBNA.replace(".", ",")
         
         band = false
       } else {//La segunda vez, agarra el dolar mayorista
         
         let filaCompletaDolarMayorista = $(element).html()
         const columnasDolarMayorista =  filaCompletaDolarMayorista.split('</td>')
-        let tercerColumnaDolarMayorista = Object.values(columnasDolarMayorista)[2]
-        valorDolarMayoristaBNA = tercerColumnaDolarMayorista.split('>')[1]
+        let segundaColumnaDolarMayorista = Object.values(columnasDolarMayorista)[1] //posicion 1 = compra
+        valorDolarMayoristaCompraBNA = segundaColumnaDolarMayorista.split('>')[1] //Aca ya obtengo el valor, despues le saco 2 decimales, y le cambio punto por coma
+        valorDolarMayoristaCompraBNA = parseFloat(valorDolarMayoristaCompraBNA).toFixed(2)
+        valorDolarMayoristaCompraBNA = valorDolarMayoristaCompraBNA.replace(".", ",")
+
+        let tercerColumnaDolarMayorista = Object.values(columnasDolarMayorista)[2] //posicion 2 = venta
+        valorDolarMayoristaVentaBNA = tercerColumnaDolarMayorista.split('>')[1] //Aca ya obtengo el valor, despues le saco 2 decimales, y le cambio punto por coma
+        valorDolarMayoristaVentaBNA = parseFloat(valorDolarMayoristaVentaBNA).toFixed(2)
+        valorDolarMayoristaVentaBNA = valorDolarMayoristaVentaBNA.replace(".", ",")
         
       }
     }
@@ -129,6 +147,7 @@ axios.get('https://www.bna.com.ar/Personas')
 // --------------------------------------------------------------- OBTENER VALOR DEL DOLAR EN SANTANDER -------------------------------------------
 var cont = 0;
 var valorDolarVentaSantander;
+var valorDolarCompraSantander;
 axios.get('https://www.infodolar.com/cotizacion-dolar-entidad-banco-santander-rio.aspx')
 .then(response => { 
 
@@ -139,12 +158,17 @@ axios.get('https://www.infodolar.com/cotizacion-dolar-entidad-banco-santander-ri
     const $dolarventasantander = $(element).find('td').filter((i, el) => /.*(Banco Santander Río).*/i.test($(el).text()));
     cont ++
     if($dolarventasantander.length > 0 ){
-      
-        let filaCompletaDolarSantander = $(element).html().split('<td')[3] //Como es el primer, agarro toda la fila
-        
-        valorDolarVentaSantander =  (filaCompletaDolarSantander).split(">")[1]
-        valorDolarVentaSantander = Object.values(valorDolarVentaSantander.split('$')[1])
-        valorDolarVentaSantander = valorDolarVentaSantander[1] +  valorDolarVentaSantander[2] + valorDolarVentaSantander[3] + valorDolarVentaSantander[4] +  valorDolarVentaSantander[5] + valorDolarVentaSantander[6] 
+      /* saco los valores de compra */
+      let columnaCompra = $(element).html().split('<td')[2] //Agarro toda la segunda columna (de compra)
+      valorDolarCompraSantander =  (columnaCompra).split(">")[0]
+      valorDolarCompraSantander = Object.values(valorDolarCompraSantander.split('$')[1])
+      valorDolarCompraSantander = valorDolarCompraSantander[1] +  valorDolarCompraSantander[2] + valorDolarCompraSantander[3] + valorDolarCompraSantander[4] +  valorDolarCompraSantander[5] + valorDolarCompraSantander[6] 
+
+      /* saco los valores de venta */
+      let columnaVenta = $(element).html().split('<td')[3] //Agarro toda la tercer columna (de venta)
+      valorDolarVentaSantander =  (columnaVenta).split(">")[1]
+      valorDolarVentaSantander = Object.values(valorDolarVentaSantander.split('$')[1])
+      valorDolarVentaSantander = valorDolarVentaSantander[1] +  valorDolarVentaSantander[2] + valorDolarVentaSantander[3] + valorDolarVentaSantander[4] +  valorDolarVentaSantander[5] + valorDolarVentaSantander[6] 
 
 
     }
@@ -164,16 +188,27 @@ app.set('json spaces', 2)
 
 //rutes 
 
-app.get('/uva-uvi', (req, res) => {
+app.get('/api/uva-uvi', (req, res) => {
     res.json({"UVA": uva, "UVI": uvi})
 })
 
-app.get('/dolar-venta-santander', (req, res) => {
-  res.json({"valor": valorDolarVentaSantander})
-})
-
-app.get('/dolar-bna', (req, res) => {
-  res.json({"Dolar Minorista": valorDolarMinoristaBNA, "Dolar Mayorista": valorDolarMayoristaBNA})
+app.get('/api/dolar', (req, res) => {
+  res.json({
+    "santander": {
+                  "compra": valorDolarCompraSantander, 
+                  "venta": valorDolarVentaSantander
+                  },
+    "banco-nacion":{
+                  "minorista":{ 
+                              "compra": valorDolarMinoristaCompraBNA,
+                              "venta": valorDolarMinoristaVentaBNA
+                              },
+                  "mayorista": {
+                              "compra": valorDolarMayoristaCompraBNA,
+                              "venta": valorDolarMayoristaVentaBNA
+                              }
+    }  
+  })
 })
 
 
