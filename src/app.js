@@ -17,13 +17,15 @@ app.use(cors());
 
 // ---------------------------------------------------------------------------------- OBTENER VALOR UVA / UVI DEL BCRA -----------------------------------------------------
 
+
 var uva;
 var uvi;
-//const { getElementById } = require('domutils');
-let b = true;
+
+
 function getValorUvaUvi(){
 
-
+//const { getElementById } = require('domutils');
+let b = true;
 
 axios.get('https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp')
   .then(response => {
@@ -88,15 +90,25 @@ axios.get('https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variabl
   });
 
 }
-
 getValorUvaUvi();
 
   // --------------------------------------------------------------- OBTENER VALOR DEL DOLAR MAYORISTA Y MINORISTA DEL BNA -------------------------------------------
+
+ 
+
+
   var band = true;
   var valorDolarMinoristaCompraBNA;
   var valorDolarMinoristaVentaBNA;
   var valorDolarMayoristaCompraBNA;
-  var valorDolarMayoristaVentaBNA;
+  var valorDolarMayoristaVentaBNA; 
+
+
+  var cont = 0;
+var valorDolarVentaSantander;
+var valorDolarCompraSantander;
+  
+function getValorDolar(){
 axios.get('https://www.bna.com.ar/Personas')
 .then(response => {
   
@@ -151,9 +163,7 @@ axios.get('https://www.bna.com.ar/Personas')
 
 
 // --------------------------------------------------------------- OBTENER VALOR DEL DOLAR EN SANTANDER -------------------------------------------
-var cont = 0;
-var valorDolarVentaSantander;
-var valorDolarCompraSantander;
+
 axios.get('https://www.infodolar.com/cotizacion-dolar-entidad-banco-santander-rio.aspx')
 .then(response => { 
 
@@ -185,8 +195,9 @@ axios.get('https://www.infodolar.com/cotizacion-dolar-entidad-banco-santander-ri
   console.log(error);
 });
 
+}
 
-
+getValorDolar();
 
 //settings 
 
@@ -200,6 +211,7 @@ app.get('/api/uva-uvi', (req, res) => {
 })
 
 app.get('/api/dolar', (req, res) => {
+  getValorDolar();
   res.json({
     "santander": {
                   "compra": valorDolarCompraSantander, 

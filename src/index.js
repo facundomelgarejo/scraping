@@ -4,6 +4,5 @@ import app from './app.js'
 import {PORT} from './config.js'
 
 //empezando el servidor
-app.listen(PORT, () => {
-    console.log('server on port', PORT)
-})
+app.listen(PORT)
+console.log('server on port', PORT)
