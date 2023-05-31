@@ -21,6 +21,9 @@ var uva;
 var uvi;
 //const { getElementById } = require('domutils');
 let b = true;
+function getValorUvaUvi(){
+
+
 
 axios.get('https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp')
   .then(response => {
@@ -84,6 +87,9 @@ axios.get('https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variabl
     console.log(error);
   });
 
+}
+
+getValorUvaUvi();
 
   // --------------------------------------------------------------- OBTENER VALOR DEL DOLAR MAYORISTA Y MINORISTA DEL BNA -------------------------------------------
   var band = true;
@@ -189,6 +195,7 @@ app.set('json spaces', 2)
 //rutes 
 
 app.get('/api/uva-uvi', (req, res) => {
+    getValorUvaUvi();
     res.json({"UVA": uva, "UVI": uvi})
 })
 
